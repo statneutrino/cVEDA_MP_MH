@@ -2,6 +2,8 @@ source("data_prep2.R")
 cveda[cveda == -666] <- NA
 cveda[cveda == -777] <- NA
 
+cveda$sex <- relevel(cveda$sex, "M")
+
 #Sociodemographics Table
 ##Calculate Age Range & Median
 summary(cveda$baseline.assessment.age.in.days/365.25)
@@ -127,6 +129,8 @@ ses_centre <- rbind(
   urban_centre_data[["SJRI"]])
 
 #Create SDQ Descriptive Tables
+
+#Whole Sample
 sdq <- cveda %>%
   select(recruitment.centre, sex, SDQ_EMO_PROB, SDQ_COND_PROB, SDQ_HYPER, SDQ_PEER_PROB, SDQ_PROSOCIAL, 
          SDQ_EXTERNALIZING, SDQ_INTERNALIZING, SDQ_TOTAL_DIFFICULTIES)
@@ -135,6 +139,42 @@ sdq_sd <- sapply(sdq[,-c(1,2)], function(x) sd(x, na.rm = TRUE))
 
 sdq_summary <- t(sapply(sdq[,-c(1,2)], summary)) %>%
   cbind(., Sd=sdq_sd)
+
+#SDQ Breakdown by sex and age group only
+my_controls <- arsenal::tableby.control(
+  numeric.stats = c("meansd", "Nmiss"),
+  digits = 2
+)
+sdq_sex_table <- arsenal::tableby(sex ~ SDQ_EMO_PROB + SDQ_COND_PROB + SDQ_HYPER + SDQ_PEER_PROB + SDQ_PROSOCIAL + SDQ_TOTAL_DIFFICULTIES,
+                                  data=cveda, control = my_controls)
+summary(sdq_sex_table, title = "Strengths and Difficulties Questionnaire", text = TRUE)
+
+#SDQ Breakdown by age group
+sdq_band_table <- arsenal::tableby(age.band ~ SDQ_EMO_PROB + SDQ_COND_PROB + SDQ_HYPER + SDQ_PEER_PROB + SDQ_PROSOCIAL + SDQ_TOTAL_DIFFICULTIES,
+                                  data=cveda, control = my_controls)
+summary(sdq_band_table, title = "Strengths and Difficulties Questionnaire", text = TRUE)
+
+#SDQ Breakdown by recruitment site
+sdq_centre_table <- arsenal::tableby(recruitment.centre ~ SDQ_EMO_PROB + SDQ_COND_PROB + SDQ_HYPER + SDQ_PEER_PROB + SDQ_PROSOCIAL + SDQ_TOTAL_DIFFICULTIES,
+                                   data=cveda, control = my_controls)
+summary(sdq_centre_table, title = "Strengths and Difficulties Questionnaire Results by Recruitment Centre", text = TRUE)
+
+sdq_sex_csv <- summary(sdq_sex_table, title = "Strengths and Difficulties Questionnaire", text = NULL)
+sdq_band_csv <- summary(sdq_band_table, title = "Strengths and Difficulties Questionnaire", text = NULL)
+sdq_centre_csv <- summary(sdq_centre_table, title = "Strengths and Difficulties Questionnaire", text = NULL)
+write.csv(sdq_sex_csv, "Outputs/sdq_sex.csv")
+write.csv(sdq_band_csv, "Outputs/sdq_ageband.csv")
+write.csv(sdq_centre_csv, "Outputs/sdq_centre.csv")
+
+#SDQ Descriptive Breakdown by Sex and then looped by recruitment site
+sdq_by_sex_centre <- list()
+for (centre in unique(cveda$recruitment.centre)){
+  temp_table <- arsenal::tableby(
+    sex ~ SDQ_EMO_PROB + SDQ_COND_PROB + SDQ_HYPER + SDQ_PEER_PROB + SDQ_PROSOCIAL + SDQ_TOTAL_DIFFICULTIES,
+    data=cveda[cveda[,"recruitment.centre"]==centre,], 
+    control = my_controls)
+  sdq_by_sex_centre[[centre]] <- summary(temp_table, text=NULL)
+}
 
 
 #Create SDQ Tables C2 ONLY
