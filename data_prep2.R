@@ -81,11 +81,21 @@ calls_other_mins_convert <- function(ever_used, category){
 #Process SCAMP data
 scamp_processed <- scamp %>%
   mutate(calls_self_weekday = calls_self_mins_convert(.$SCAMP_S_q3, .$SCAMP_S_q10_1)) %>%
+  mutate(calls_self_weekend = calls_self_mins_convert(.$SCAMP_S_q3, .$SCAMP_S_q10_2)) %>%
   mutate(im_weekday = sns_mins_convert(.$SCAMP_S_q3, .$SCAMP_S_q16_1)) %>%
+  mutate(im_weekend = sns_mins_convert(.$SCAMP_S_q3, .$SCAMP_S_q16_2)) %>%
   mutate(sns_weekday = sns_mins_convert(.$SCAMP_S_q3, .$SCAMP_S_q17_1)) %>%
+  mutate(sns_weekend = sns_mins_convert(.$SCAMP_S_q3, .$SCAMP_S_q17_2)) %>%
   mutate(internet_weekday = internet_midpoint_mins_convert(.$SCAMP_S_q3, .$SCAMP_S_q18, .$SCAMP_S_q20_1)) %>%
+  mutate(internet_weekend = internet_midpoint_mins_convert(.$SCAMP_S_q3, .$SCAMP_S_q18, .$SCAMP_S_q20_2)) %>%
   mutate(calls_other_weekday = calls_other_mins_convert(.$SCAMP_S_q1, .$SCAMP_S_q26_1)) %>%
+  mutate(calls_other_weekend = calls_other_mins_convert(.$SCAMP_S_q1, .$SCAMP_S_q26_2)) %>%
   mutate(total_mp_weekday = .$calls_self_weekday + .$internet_weekday + .$calls_other_weekday) %>%
+  mutate(total_mp_weekend = .$calls_self_weekend + .$internet_weekend + .$calls_other_weekend) %>%
+  mutate(total_mp_full_week = round((5 * .$total_mp_weekday + 2 * .$total_mp_weekend) / 7, digits = 1)) %>%
+  mutate(sns_full_week = round((5 * .$sns_weekday + 2 * .$sns_weekend) / 7, digits = 1)) %>%
+  mutate(im_full_week = round((5 * .$im_weekday + 2 * .$im_weekend) / 7, digits = 1)) %>%
+  mutate(internet_full_week = round((5 * .$internet_weekday + 2 * .$internet_weekend) / 7, digits = 1)) %>%
   select(-Age.band, -Iteration, -Language)
 
 #OUTCOME DATA PREP
@@ -137,7 +147,7 @@ floor_qual_convert <- function(category) {
     TRUE ~ NA_real_
   )
   return(floor_qual)
-} # Consider making MARBLE and GRANITE as high-income housing?
+} # Consider making MARBLE and GRANITE as high-income floor?
 
 #Wall Quality
 wall_qual_convert <- function(category) {
@@ -191,8 +201,23 @@ cveda <- recruitment %>%
   left_join(sdim_housing, by = c("PSC2" = "User.code")) %>%
   mutate(housing = as.factor(housing))
 
+#Convert missing numbers to NA
+cveda[cveda == -666] <- NA
+cveda[cveda == -777] <- NA
 
+#Select columns for analysis
+cveda <- cveda %>%
+  select(PSC2, recruitment.centre, sex, age.band, baseline.assessment.age.in.days, 
+        calls_self_weekday, calls_self_weekend, im_weekday, im_weekend, sns_weekday, sns_weekend,
+        internet_weekday, internet_weekend, calls_other_weekday,calls_other_weekend, total_mp_weekday, 
+        total_mp_weekend, total_mp_full_week, sns_full_week, im_full_week, internet_full_week,
+        SDQ_EMO_PROB, SDQ_COND_PROB, SDQ_HYPER, SDQ_PEER_PROB, SDQ_PROSOCIAL,                  
+        SDQ_EXTERNALIZING, SDQ_INTERNALIZING, SDQ_TOTAL_DIFFICULTIES,
+        anxiety, depress, soc.anxiety, gen.anxiety,
+        floorqual, wallqual, roofqual,                       
+        housing, urbanisation, homeown)
 
+write.csv(cveda, "cveda_stata_import.csv")
 
 
 
