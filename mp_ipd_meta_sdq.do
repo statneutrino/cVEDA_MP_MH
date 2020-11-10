@@ -4,7 +4,7 @@ import delimited "C:\Users\advsp\OneDrive - Imperial College London\PhD\cVEDA\An
 **create age column**
 gen age = baselineassessmentageindays / 365.25
 
-**create sex dummy variable: gender**
+**create sex dummy variable: gender- male as reference category**
 gen gender = 0
 replace gender = 1 if sex == "F"
 
@@ -13,40 +13,269 @@ gen geometrics = 0
 replace geometrics = 1 if urbanisation == "slum/rural"
 replace geometrics = . if urbanisation == "NA"
 
-**create test variable in hours
-ge mp_hour = total_mp_full_week / 60
+**transform exposure to hours
+gen mp_daily_avg = total_mp_full_week / 60
+gen sns_daily_avg = sns_full_week / 60
+gen im_daily_avg = im_full_week / 60
+gen internet_daily_avg = internet_full_week / 60
 
 **create dummy var for age band**
 gen band = 0
 replace band = 1 if ageband == "C3"
 
-** meta analysis SDQ **
+*change variable labels e.g. for recruitmentcentre
+gen rc = "Imphal, Manipur"
+replace rc = "Asansol, West Bengal" if recruitmentcentre == "KOLKATA"
+replace rc = "Mysore, Karnataka" if recruitmentcentre == "MYSORE"
+replace rc = "NIMHANS, Karnataka" if recruitmentcentre == "NIMHANS"
+replace rc = "PGIMER, Chandigarh" if recruitmentcentre == "PGIMER"
+replace rc = "Rishi Valley, Andhra Pradesh" if recruitmentcentre == "RISHIVALLEY"
+replace rc = "St John's Research Institute, Karnataka" if recruitmentcentre == "SJRI"
+label variable rc "Recruitment Centre"
 
+** meta analysis SDQ for TOTAL MP USAGE**
+
+*TOTAL DIFFICULTIES
 **run linear regression for SDQ total difficulties, first for unadjusted results, overall and then per site**
-**child maltreatment
-regress sdq_total_difficulties total_mp_full_week
-bysort recruitmentcentre: regress sdq_total_difficulties total_mp_full_week
+regress sdq_total_difficulties mp_daily_avg
+bysort rc: regress sdq_total_difficulties mp_daily_avg
 
 **run same model but with confounders
-regress sdq_total_difficulties total_mp_full_week housing geometrics age gender
-bysort recruitmentcentre: regress sdq_total_difficulties total_mp_full_week housing geometrics homeown age gender
+regress sdq_total_difficulties mp_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_total_difficulties mp_daily_avg housing geometrics homeown age gender
 
-**RUN IPD META-ANLYSIS FOR SDQ**
-ipdmetan, study(recruitmentcentre) re(hk): regress sdq_total_difficulties mp_hour housing geometrics homeown age gender
+**run IPD meta-analysis for TOTAL DIFFICULTIES
+ipdmetan, study(rc) re(hk) forestplot(ysize(3)): regress sdq_total_difficulties mp_daily_avg housing geometrics homeown age gender
 
-** meta analysis MINI **
+*EMOTIONAL PROBLEMS
+**run linear regression for SDQ emotional problems, first for unadjusted results, overall and then per site**
+regress sdq_emo_prob mp_daily_avg
+bysort rc: regress sdq_emo_prob mp_daily_avg
 
-**First run logistic regression for Depressoin, first for unadjusted results, overall and then per site**
-logit depress mp_hour housing geometrics age gender
-bysort recruitmentcentre: logit depress mp_hour housing geometrics age gender homeown
+**run same model but with confounders
+regress sdq_emo_prob mp_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_emo_prob mp_daily_avg housing geometrics homeown age gender
 
-**RUN IPD META-ANLYSIS FOR DEPRESSION**
-ipdmetan, study(recruitmentcentre) or re(hk): logit depress mp_hour housing geometrics homeown age gender
+**run IPD meta-analysis for EMOTIONAL PROBLEMS
+ipdmetan, study(rc) re(hk) forestplot(ysize(3)): regress sdq_emo_prob mp_daily_avg housing geometrics homeown age gender
 
-**run again but without SJRI**
-gen rc = recruitmentcentre
-replace rc = "" if recruitmentcentre == "SJRI"
-ipdmetan, study(rc) or re(hk): firthlogit depress mp_hour housing geometrics homeown age gender
+*CONDUCT PROBLEMS
+**run linear regression for SDQ conduct problems, first for unadjusted results, overall and then per site**
+regress sdq_cond_prob mp_daily_avg
+bysort rc: regress sdq_cond_prob mp_daily_avg
+
+**run same model but with confounders
+regress sdq_cond_prob mp_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_cond_prob mp_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for CONDUCT PROBLEMS
+ipdmetan, study(rc) re(hk) forestplot(ysize(3)): regress sdq_cond_prob mp_daily_avg housing geometrics homeown age gender
+
+*HYPERACTIVITY/INATTENTION PROBLEMS
+**run linear regression for SDQ emotional problems, first for unadjusted results, overall and then per site**
+regress sdq_hyper mp_daily_avg
+bysort rc: regress sdq_hyper mp_daily_avg
+
+**run same model but with confounders
+regress sdq_hyper mp_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_hyper mp_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for HYPERACTIVITY/INATTENTION  PROBLEMS
+ipdmetan, study(rc) re(hk) forestplot(ysize(3)): regress sdq_hyper mp_daily_avg housing geometrics homeown age gender
+
+*PEER PROBLEMS
+**run linear regression for SDQ peer problems, first for unadjusted results, overall and then per site**
+regress sdq_peer_prob mp_daily_avg
+bysort rc: regress sdq_peer_prob mp_daily_avg
+
+**run same model but with confounders
+regress sdq_peer_prob mp_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_peer_prob mp_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for PEER PROBLEMS
+ipdmetan, study(rc) re(hk) forestplot(ysize(3)): regress sdq_peer_prob mp_daily_avg housing geometrics homeown age gender
+
+*PROSOCIAL
+**run linear regression for SDQ prosocial, first for unadjusted results, overall and then per site**
+regress sdq_prosocial mp_daily_avg
+bysort rc: regress sdq_prosocial mp_daily_avg
+
+**run same model but with confounders
+regress sdq_prosocial mp_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_prosocial mp_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for PROSOCIAL
+ipdmetan, study(rc) re(hk) forestplot(ysize(3)): regress sdq_prosocial mp_daily_avg housing geometrics homeown age gender
+
+
+
+
+
+
+*** NEXT EXPOSURE
+
+** meta analysis SDQ for TOTAL SOCIAL MEDIA / SOCIAL NETWORK USAGE**
+
+*TOTAL DIFFICULTIES
+**run linear regression for SDQ total difficulties, first for unadjusted results, overall and then per site**
+regress sdq_total_difficulties sns_daily_avg
+bysort rc: regress sdq_total_difficulties sns_daily_avg
+
+**run same model but with confounders
+regress sdq_total_difficulties sns_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_total_difficulties sns_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for TOTAL DIFFICULTIES
+ipdmetan, study(rc) re(hk)  forestplot( range(-4 4) xlabel(-4 -2 0 2 4) ysize(3)): regress sdq_total_difficulties sns_daily_avg housing geometrics homeown age gender
+
+*EMOTIONAL PROBLEMS
+**run linear regression for SDQ emotional problems, first for unadjusted results, overall and then per site**
+regress sdq_emo_prob sns_daily_avg
+bysort rc: regress sdq_emo_prob sns_daily_avg
+
+**run same model but with confounders
+regress sdq_emo_prob sns_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_emo_prob sns_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for EMOTIONAL PROBLEMS
+ipdmetan, study(rc) re(hk) forestplot( range(-2 2) xlabel(-2 -1 0 1 2) ysize(3)): regress sdq_emo_prob sns_daily_avg housing geometrics homeown age gender
+
+*CONDUCT PROBLEMS
+**run linear regression for SDQ conduct problems, first for unadjusted results, overall and then per site**
+regress sdq_cond_prob sns_daily_avg
+bysort rc: regress sdq_cond_prob sns_daily_avg
+
+**run same model but with confounders
+regress sdq_cond_prob sns_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_cond_prob sns_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for CONDUCT PROBLEMS
+ipdmetan, study(rc) re(hk) forestplot( range(-2 2) xlabel(-2 -1 0 1 2) ysize(3)): regress sdq_cond_prob sns_daily_avg housing geometrics homeown age gender
+
+*HYPERACTIVITY/INATTENTION PROBLEMS
+**run linear regression for SDQ HYPERACTIVITY/INATTENTION problems, first for unadjusted results, overall and then per site**
+regress sdq_hyper sns_daily_avg
+bysort rc: regress sdq_hyper sns_daily_avg
+
+**run same model but with confounders
+regress sdq_hyper sns_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_hyper sns_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for HYPERACTIVITY/INATTENTION  PROBLEMS
+ipdmetan, study(rc) re(hk) forestplot( range(-4 4) xlabel(-4 -2 0 2 4) ysize(3)): regress sdq_hyper sns_daily_avg housing geometrics homeown age gender
+
+*PEER PROBLEMS
+**run linear regression for SDQ peer problems, first for unadjusted results, overall and then per site**
+regress sdq_peer_prob sns_daily_avg
+bysort rc: regress sdq_peer_prob sns_daily_avg
+
+**run same model but with confounders
+regress sdq_peer_prob sns_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_peer_prob sns_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for PEER PROBLEMS
+ipdmetan, study(rc) re(hk) forestplot( range(-2 2) xlabel(-2 -1 0 1 2) ysize(3)): regress sdq_peer_prob sns_daily_avg housing geometrics homeown age gender
+
+*PROSOCIAL
+**run linear regression for SDQ prosocial, first for unadjusted results, overall and then per site**
+regress sdq_prosocial sns_daily_avg
+bysort rc: regress sdq_prosocial sns_daily_avg
+
+**run same model but with confounders
+regress sdq_prosocial sns_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_prosocial sns_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for PROSOCIAL
+ipdmetan, study(rc) re(hk)  forestplot( range(-2 2) xlabel(-2 -1 0 1 2) ysize(3)): regress sdq_prosocial sns_daily_avg housing geometrics homeown age gender
+
+
+
+
+*** NEXT EXPOSURE
+
+** meta analysis SDQ for INSTANT MESSAGING**
+
+*TOTAL DIFFICULTIES
+**run linear regression for SDQ total difficulties, first for unadjusted results, overall and then per site**
+regress sdq_total_difficulties im_daily_avg
+bysort rc: regress sdq_total_difficulties im_daily_avg
+
+**run same model but with confounders
+regress sdq_total_difficulties im_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_total_difficulties im_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for TOTAL DIFFICULTIES
+ipdmetan, study(rc) re(hk)  forestplot( range(-4 4) xlabel(-4 -2 0 2 4) ysize(3)): regress sdq_total_difficulties im_daily_avg housing geometrics homeown age gender
+
+*EMOTIONAL PROBLEMS
+**run linear regression for SDQ emotional problems, first for unadjusted results, overall and then per site**
+regress sdq_emo_prob im_daily_avg
+bysort rc: regress sdq_emo_prob im_daily_avg
+
+**run same model but with confounders
+regress sdq_emo_prob im_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_emo_prob im_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for EMOTIONAL PROBLEMS
+ipdmetan, study(rc) re(hk) forestplot( range(-2 2) xlabel(-2 -1 0 1 2) ysize(3)): regress sdq_emo_prob im_daily_avg housing geometrics homeown age gender
+
+*CONDUCT PROBLEMS
+**run linear regression for SDQ conduct problems, first for unadjusted results, overall and then per site**
+regress sdq_cond_prob im_daily_avg
+bysort rc: regress sdq_cond_prob im_daily_avg
+
+**run same model but with confounders
+regress sdq_cond_prob im_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_cond_prob im_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for CONDUCT PROBLEMS
+ipdmetan, study(rc) re(hk) forestplot( range(-2 2) xlabel(-2 -1 0 1 2) ysize(3)): regress sdq_cond_prob im_daily_avg housing geometrics homeown age gender
+
+*HYPERACTIVITY/INATTENTION PROBLEMS
+**run linear regression for SDQ HYPERACTIVITY/INATTENTION problems, first for unadjusted results, overall and then per site**
+regress sdq_hyper im_daily_avg
+bysort rc: regress sdq_hyper im_daily_avg
+
+**run same model but with confounders
+regress sdq_hyper im_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_hyper im_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for HYPERACTIVITY/INATTENTION  PROBLEMS
+ipdmetan, study(rc) re(hk) forestplot( range(-4 4) xlabel(-4 -2 0 2 4) ysize(3)): regress sdq_hyper im_daily_avg housing geometrics homeown age gender
+
+*PEER PROBLEMS
+**run linear regression for SDQ peer problems, first for unadjusted results, overall and then per site**
+regress sdq_peer_prob im_daily_avg
+bysort rc: regress sdq_peer_prob im_daily_avg
+
+**run same model but with confounders
+regress sdq_peer_prob im_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_peer_prob im_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for PEER PROBLEMS
+ipdmetan, study(rc) re(hk) forestplot( range(-2 2) xlabel(-2 -1 0 1 2) ysize(3)): regress sdq_peer_prob im_daily_avg housing geometrics homeown age gender
+
+*PROSOCIAL
+**run linear regression for SDQ prosocial, first for unadjusted results, overall and then per site**
+regress sdq_prosocial im_daily_avg
+bysort rc: regress sdq_prosocial im_daily_avg
+
+**run same model but with confounders
+regress sdq_prosocial im_daily_avg housing geometrics homeown age gender
+bysort rc: regress sdq_prosocial im_daily_avg housing geometrics homeown age gender
+
+**run IPD meta-analysis for PROSOCIAL
+ipdmetan, study(rc) re(hk)  forestplot( range(-2 2) xlabel(-2 -1 0 1 2) ysize(3)): regress sdq_prosocial im_daily_avg housing geometrics homeown age gender
+
+
+
+
+
+
+
+
+
+
 
 
 

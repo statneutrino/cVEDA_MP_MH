@@ -215,7 +215,8 @@ cveda <- cveda %>%
         SDQ_EXTERNALIZING, SDQ_INTERNALIZING, SDQ_TOTAL_DIFFICULTIES,
         anxiety, depress, soc.anxiety, gen.anxiety,
         floorqual, wallqual, roofqual,                       
-        housing, urbanisation, homeown)
+        housing, urbanisation, homeown) %>%
+  mutate(sex = factor(.$sex, levels=c("M", "F")))
 
 write.csv(cveda, "cveda_stata_import.csv")
 
