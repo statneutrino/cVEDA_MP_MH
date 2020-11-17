@@ -118,7 +118,10 @@ minikid_processed <- minikid %>%
   )) %>%
   rename(depress = MINI_KID_A_MDEC) %>%
   rename(soc.anxiety = MINI_KID_H_SPC) %>%
-  rename(gen.anxiety = MINI_KID_U_GADC)
+  rename(gen.anxiety = MINI_KID_U_GADC) %>%
+  rename(suicide = MINI_KID_B_SRC) %>%
+  rename(suicide.score = MINI_KID_B_SRC_SCORE)
+  
 
 #Process MINI5
 mini5_processed <- mini5 %>%
@@ -129,11 +132,13 @@ mini5_processed <- mini5 %>%
   )) %>%
   rename(depress = MINI_A_MDEC) %>%
   rename(soc.anxiety = MINI_G_SPC) %>%
-  rename(gen.anxiety = MINI_O_GADC) # remember to change -666 to NA
+  rename(gen.anxiety = MINI_O_GADC) %>% # remember to change -666 to NA
+  rename(suicide = MINI_C_SRC) %>%
+  rename(suicide.score = MINI_C_SRC_SCORE)
 
 all_mini <- rbind(
-  select(minikid_processed, User.code, anxiety, depress, soc.anxiety, gen.anxiety), 
-  select(mini5_processed, User.code, anxiety, depress, soc.anxiety, gen.anxiety)
+  select(minikid_processed, User.code, anxiety, depress, soc.anxiety, gen.anxiety, suicide, suicide.score), 
+  select(mini5_processed, User.code, anxiety, depress, soc.anxiety, gen.anxiety, suicide, suicide.score)
 )
 
 ##COVARIATES
@@ -213,7 +218,7 @@ cveda <- cveda %>%
         total_mp_weekend, total_mp_full_week, sns_full_week, im_full_week, internet_full_week,
         SDQ_EMO_PROB, SDQ_COND_PROB, SDQ_HYPER, SDQ_PEER_PROB, SDQ_PROSOCIAL,                  
         SDQ_EXTERNALIZING, SDQ_INTERNALIZING, SDQ_TOTAL_DIFFICULTIES,
-        anxiety, depress, soc.anxiety, gen.anxiety,
+        anxiety, depress, soc.anxiety, gen.anxiety, suicide, suicide.score,
         floorqual, wallqual, roofqual,                       
         housing, urbanisation, homeown) %>%
   mutate(sex = factor(.$sex, levels=c("M", "F")))

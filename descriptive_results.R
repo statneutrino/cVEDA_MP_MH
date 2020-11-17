@@ -4,7 +4,7 @@ cveda[cveda == -777] <- NA
 
 cveda$sex <- relevel(cveda$sex, "M")
 cveda <- cveda %>%
-  mutate_at(c("anxiety", "depress", "soc.anxiety", "gen.anxiety"), list(as.factor)) %>%
+  mutate_at(c("anxiety", "depress", "soc.anxiety", "gen.anxiety", "suicide"), list(as.factor)) %>%
   mutate_at(vars(contains("SCAMP")), list(as.factor))
 
 #Sociodemographics Table
