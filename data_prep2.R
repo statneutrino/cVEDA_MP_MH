@@ -2,14 +2,28 @@ library(tidyverse)
 library(arsenal)
 
 #Import data
-recruitment_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA_recruitment_files_2019-09-12.csv"
-minikid_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_MINI5KID-BASIC_DIGEST.csv"
-mini5_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_MINI5-BASIC_DIGEST.csv"
-scamp_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SCAMP_SELF-BASIC_DIGEST.csv"
-sdq_child_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SDQ_CHILD-BASIC_DIGEST.csv"
-sdq_adult_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SDQ_ADULT-BASIC_DIGEST.csv"
-sdq_parent_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SDQ_PARENT-BASIC_DIGEST.csv"
-sdim_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SDIM-BASIC_DIGEST.csv"
+
+imperial_path <- "C:/Users/as819/OneDrive - Imperial College London/PhD/cVEDA/Analysis/cVEDA_R_Analysis"
+
+if (getwd() == imperial_path){
+  recruitment_path <- "C:/Users/as819/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA_recruitment_files_2019-09-12.csv"
+  minikid_path <- "C:/Users/as819/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_MINI5KID-BASIC_DIGEST.csv"
+  mini5_path <- "C:/Users/as819/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_MINI5-BASIC_DIGEST.csv"
+  scamp_path <- "C:/Users/as819/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SCAMP_SELF-BASIC_DIGEST.csv"
+  sdq_child_path <- "C:/Users/as819/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SDQ_CHILD-BASIC_DIGEST.csv"
+  sdq_adult_path <- "C:/Users/as819/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SDQ_ADULT-BASIC_DIGEST.csv"
+  sdq_parent_path <- "C:/Users/as819/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SDQ_PARENT-BASIC_DIGEST.csv"
+  sdim_path <- "C:/Users/as819/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SDIM-BASIC_DIGEST.csv"
+} else {
+  recruitment_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA_recruitment_files_2019-09-12.csv"
+  minikid_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_MINI5KID-BASIC_DIGEST.csv"
+  mini5_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_MINI5-BASIC_DIGEST.csv"
+  scamp_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SCAMP_SELF-BASIC_DIGEST.csv"
+  sdq_child_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SDQ_CHILD-BASIC_DIGEST.csv"
+  sdq_adult_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SDQ_ADULT-BASIC_DIGEST.csv"
+  sdq_parent_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SDQ_PARENT-BASIC_DIGEST.csv"
+  sdim_path <- "C:/Users/advsp/OneDrive - Imperial College London/PhD/cVEDA/Data/cVEDA-cVEDA_SDIM-BASIC_DIGEST.csv"
+}
 
 recruitment <- read.csv(recruitment_path, fileEncoding = "UTF-8-BOM")
 minikid <- read.csv(minikid_path, fileEncoding = "UTF-8-BOM")
