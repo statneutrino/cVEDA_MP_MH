@@ -1,6 +1,8 @@
 library(lme4)
 library(meta)
 library(rstan)
+library(tidyverse)
+library(bayesplot)
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
 source("data_prep2.R")
@@ -105,42 +107,49 @@ model {
 r_int_stan <-stan(model_code=random_intercept_model,
                data=cveda_list,
                chains=3,
-               iter=5000, warmup=1000,
-               cores=3)
+               iter=5000, warmup=1000)
 
 print(r_int_stan)
 traceplot(r_int_stan,pars=c('theta','alpha','beta','sigma_e', 'sigma_u'))
 traceplot(r_int_stan,pars='u')
 
-
 ## STAN MODEL - random treatment effect
-random_intercept_model <- '
-data {
-  int<lower=1> N;
-  int<lower=1> J; //the number of groups
-  int<lower=1,upper=J> id[N]; //vector of group indeces
-  vector[N] mp;
-  vector[N] age;
-  vector[N] y;
-  
-}
-parameters {
-  real beta;
-  real theta;
-  real<lower=0> sigma_e;
-  real<lower=0> sigma_u;
-  vector[J] alpha;
-} 
+#y ~ normal(mu, sigma)
+#mu = alpha[d_id] + beta[d_id] * u
+#[alpha[d_id], beta[d_id]] ~ MVN([a_bar, b_bar], S)
+#S = covariance matrix i.e. 
+#Hyperpriors
+#alpha_bar ~ normal(0,1.5)
+#beta_bar ~ normal(0,1)
+#sigma ~ Exp(1)
+#sigma_alpha ~ exp(1)
+#sigma_beta ~ exp(1)
+#R ~ LKJcorr(2)
 
-model {
-  theta 
-  sigma_u ~ uniform(0, 40);
-  sigma_e ~ uniform(0, 40);
-  alpha ~ normal(12.5, 20);
-  u ~ normal(0, sigma_u);
-  y ~ normal(alpha[id] + beta * age + (theta + u[id]) * mp, sigma_e);
-}
-'
+random_slopes1_path <- "Stan Files/cveda_random_slopes.stan"
+  
+random_slopes1 <- stan(file = random_slopes1_path, 
+       data = cveda_list,
+       chains=1,
+       iter=3000,warmup=1000,
+       cores=4)
+
+#random_slopes1 had 72 divergent transitions
+
+print(random_slopes1)
+lmer(SDQ_TOTAL_DIFFICULTIES ~ mp + (mp | recruitment.centre), data=cveda) %>% summary(.) #compare with lmer 
+
+#Attempt to fix divergent transitions with cholesky decomposition and centering
+traceplot(random_slopes1, pars="Rho[1,2]")
+
+mcmc_areas(
+  posterior,
+  pars = c("beta_bar", "theta[1]", "crazytown", "theta[3]","theta[4]", "theta[5]", "theta[6]", "theta[7]"),
+  prob = 0.8, # 80% intervals
+  prob_outer = 0.95, # 99%
+  point_est = "mean"
+)
+
 
 
 
