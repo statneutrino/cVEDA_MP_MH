@@ -106,10 +106,14 @@ scamp_processed <- scamp %>%
   mutate(calls_other_weekend = calls_other_mins_convert(.$SCAMP_S_q1, .$SCAMP_S_q26_2)) %>%
   mutate(total_mp_weekday = .$calls_self_weekday + .$internet_weekday + .$calls_other_weekday) %>%
   mutate(total_mp_weekend = .$calls_self_weekend + .$internet_weekend + .$calls_other_weekend) %>%
-  mutate(total_mp_full_week = round((5 * .$total_mp_weekday + 2 * .$total_mp_weekend) / 7, digits = 1)) %>%
-  mutate(sns_full_week = round((5 * .$sns_weekday + 2 * .$sns_weekend) / 7, digits = 1)) %>%
-  mutate(im_full_week = round((5 * .$im_weekday + 2 * .$im_weekend) / 7, digits = 1)) %>%
-  mutate(internet_full_week = round((5 * .$internet_weekday + 2 * .$internet_weekend) / 7, digits = 1)) %>%
+  mutate(total_calls_weekday = .$calls_self_weekday + .$calls_other_weekday) %>%
+  mutate(total_calls_weekend = .$calls_self_weekend + .$calls_other_weekend) %>%
+  mutate(calls_full_week = round((5 * .$total_calls_weekday + 2 * .$total_calls_weekend) / (7*60), digits = 2)) %>%
+  mutate(total_mp_full_week = round((5 * .$total_mp_weekday + 2 * .$total_mp_weekend) / (7*60), digits = 2)) %>%
+  mutate(sns_full_week = round((5 * .$sns_weekday + 2 * .$sns_weekend) / (7*60), digits = 2)) %>%
+  mutate(im_full_week = round((5 * .$im_weekday + 2 * .$im_weekend) / (7*60), digits = 2)) %>%
+  mutate(internet_full_week = round((5 * .$internet_weekday + 2 * .$internet_weekend) / (7*60), digits = 2)) %>%
+  mutate(internet_full_week = round((5 * .$internet_weekday + 2 * .$internet_weekend) / (7*60), digits = 2)) %>%
   select(-Age.band, -Iteration, -Language)
 
 #OUTCOME DATA PREP
@@ -229,7 +233,7 @@ cveda <- cveda %>%
   select(PSC2, recruitment.centre, sex, age.band, baseline.assessment.age.in.days, 
         calls_self_weekday, calls_self_weekend, im_weekday, im_weekend, sns_weekday, sns_weekend,
         internet_weekday, internet_weekend, calls_other_weekday,calls_other_weekend, total_mp_weekday, 
-        total_mp_weekend, total_mp_full_week, sns_full_week, im_full_week, internet_full_week,
+        total_mp_weekend, total_mp_full_week, sns_full_week, im_full_week, internet_full_week, calls_full_week,
         SDQ_EMO_PROB, SDQ_COND_PROB, SDQ_HYPER, SDQ_PEER_PROB, SDQ_PROSOCIAL,                  
         SDQ_EXTERNALIZING, SDQ_INTERNALIZING, SDQ_TOTAL_DIFFICULTIES,
         anxiety, depress, soc.anxiety, gen.anxiety, suicide, suicide.score,
@@ -237,8 +241,8 @@ cveda <- cveda %>%
         housing, urbanisation, homeown) %>%
   mutate(sex = factor(.$sex, levels=c("M", "F")))
 
-write.csv(cveda, "cveda_stata_import.csv")
-
+#write.csv(cveda, "cveda_stata_import.csv")
+rm(list = ls()[-which(ls() == c("cveda"))])
 
 
 

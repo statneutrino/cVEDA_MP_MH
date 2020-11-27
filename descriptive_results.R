@@ -131,6 +131,8 @@ ses_centre <- rbind(
   urban_centre_data[["RISHIVALLEY"]],
   urban_centre_data[["SJRI"]])
 
+#Use arsenal package to create sociodemographic tables
+
 #Create SDQ Descriptive Tables
 
 #Whole Sample
@@ -249,7 +251,9 @@ convert_no_internet <- function(internet, category) {
 scamp_labels <- as.data.frame(readxl::read_xlsx("SCAMP_labels.xlsx", sheet="Sheet1", col_names = TRUE)) %>%
   mutate_all(as.character)
 
-raw_exposure <- cveda %>%
+raw_exposure <- recruitment %>%
+  filter(age.band == "C2" | age.band == "C3") %>%
+  left_join(scamp, by = c("PSC2" = "User.code")) %>%
   select(recruitment.centre, age.band, sex, 
          SCAMP_S_q1, SCAMP_S_q3, SCAMP_S_q10_1, SCAMP_S_q10_2,
          SCAMP_S_q16_1, SCAMP_S_q16_2, SCAMP_S_q17_1, SCAMP_S_q17_2, 
@@ -269,6 +273,8 @@ raw_exposure <- cveda %>%
   mutate(SCAMP_S_q20_1 = convert_no_internet(.$SCAMP_S_q18, .$SCAMP_S_q20_1)) %>%
   mutate(SCAMP_S_q20_2 = convert_no_internet(.$SCAMP_S_q18, .$SCAMP_S_q20_2)) %>%
   mutate_at(vars(-(c("recruitment.centre", "age.band", "sex"))), as.character)
+
+raw_exposure[raw_exposure == -777] <- NA
 
 #Change labels of SCAMP variables and order factors in correct order (increasing exposure)
 for (col in colnames(raw_exposure[-c(1:3)])){
@@ -399,3 +405,7 @@ c3_summary_centre <- c3_descript[,-2] %>%
   group_by(recruitment.centre) %>%
   summarise_all(list(mean = function(x) mean(x, na.rm = TRUE), sd = function(x) sd(x, na.rm = TRUE))) %>%
   as.data.frame()
+
+
+
+

@@ -42,6 +42,13 @@ model {
   mu = alpha[id] + theta[id] .* mp;
   y ~ normal(mu, sigma);
 }
-
+generated quantities{
+  vector[N] log_lik;
+  vector[N] mu;
+  mu = alpha[id] + theta[id] .* mp;
+  for (n in 1:N){
+    log_lik[n] = normal_lpdf(y[n] | mu[n], sigma);
+  }
+}
 
 
